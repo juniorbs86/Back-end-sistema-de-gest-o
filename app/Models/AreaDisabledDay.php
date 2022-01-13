@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AreaDisabledDay extends Model
 {
     use HasFactory;
-    public $timestamps = 'false';
+    public $timestamps = false;
     public $table = 'areadisableddays';
 }
