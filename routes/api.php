@@ -7,7 +7,7 @@ use App\Http\Controllers\{
     AuthController,
     BilletController,
     DocController,
-    FondAndLostController,
+    FoundAndLostController,
     ReservationController,
     UnitController,
     UserController,
