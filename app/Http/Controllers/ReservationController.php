@@ -120,6 +120,13 @@ class ReservationController extends Controller
                 }
 
                 //verificar se nao existe outra reserva no mesmo dia/hora
+                $existingReservations = Reservation::where('id_area', $id)
+                    ->where('reservation_date', $date . ' ' . $time)
+                    ->count();
+                if ($existingReservations > 0) {
+                    $can = false;
+                }
+
 
                 if ($can) {
                     $newReservation = new Reservation();
@@ -139,6 +146,14 @@ class ReservationController extends Controller
             $array['error'] = $validator->errors()->first();
             return $array;
         }
+
+        return $array;
+    }
+
+    public function getDisabledDates($id)
+    {
+        $array = ['error' => ''];
+
 
         return $array;
     }
