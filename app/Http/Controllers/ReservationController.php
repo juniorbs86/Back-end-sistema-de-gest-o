@@ -73,83 +73,6 @@ class ReservationController extends Controller
         return $array;
     }
 
-    public function setReservation($id, Request $request)
-    {
-        $array = ['error' => ''];
-
-        $validator = Validator::make($request->all(), [
-            'date' => 'required|date_format:Y-m-d',
-            'time' => 'required|date_format:H:i:s',
-            'property' => 'required'
-        ]);
-        if (!$validator->fails()) {
-            $date = $request->input('date');
-            $time = $request->input('time');
-            $property = $request->input('property');
-
-            $unit = Unit::find($property);
-            $area = Area::find($id);
-
-
-
-            if ($unit && $area) {
-                $can = true;
-
-                $weekDay = date('w', strtotime($date));
-
-                //verificar se esta dentro da disponibilidade padrao
-                $allowedDays = explode(',', $area['days']);
-                if (!in_array($weekDay, $allowedDays)) {
-                    $can = false;
-                } else {
-                    $start = strtotime($area['start_time']);
-                    $end = strtotime('-1 hour', strtotime($area['end_time']));
-                    $revtime = strtotime($time);
-                    if ($revtime < $start || $revtime > $end) {
-                        $can = false;
-                    }
-                }
-
-
-                //verificar se esta fora dos disabledDays
-                $existingDisabledDay = AreaDisabledDay::where('id_area', $id)
-                    ->where('day', $date)
-                    ->count();
-                if ($existingDisabledDay > 0) {
-                    $can = false;
-                }
-
-                //verificar se nao existe outra reserva no mesmo dia/hora
-                $existingReservations = Reservation::where('id_area', $id)
-                    ->where('reservation_date', $date . ' ' . $time)
-                    ->count();
-                if ($existingReservations > 0) {
-                    $can = false;
-                }
-
-
-                if ($can) {
-                    $newReservation = new Reservation();
-                    $newReservation->id_unit = $property;
-                    $newReservation->id_area = $id;
-                    $newReservation->reservation_date = $date . ' ' . $time;
-                    $newReservation->save();
-                } else {
-                    $array['error'] = 'Reserva não permitida neste dia/horario';
-                    return $array;
-                }
-            } else {
-                $arra['error'] = 'Dados incorretos';
-                return $array;
-            }
-        } else {
-            $array['error'] = $validator->errors()->first();
-            return $array;
-        }
-
-        return $array;
-    }
-
     public function getDisabledDates($id)
     {
         $array = ['error' => '', 'list' => []];
@@ -275,6 +198,151 @@ class ReservationController extends Controller
             $array['error'] = $validator->errors()->first();
             return $array;
         }
+
+        return $array;
+    }
+
+    public function setReservation($id, Request $request)
+    {
+        $array = ['error' => ''];
+
+        $validator = Validator::make($request->all(), [
+            'date' => 'required|date_format:Y-m-d',
+            'time' => 'required|date_format:H:i:s',
+            'property' => 'required'
+        ]);
+        if (!$validator->fails()) {
+            $date = $request->input('date');
+            $time = $request->input('time');
+            $property = $request->input('property');
+
+            $unit = Unit::find($property);
+            $area = Area::find($id);
+
+
+
+            if ($unit && $area) {
+                $can = true;
+
+                $weekDay = date('w', strtotime($date));
+
+                //verificar se esta dentro da disponibilidade padrao
+                $allowedDays = explode(',', $area['days']);
+                if (!in_array($weekDay, $allowedDays)) {
+                    $can = false;
+                } else {
+                    $start = strtotime($area['start_time']);
+                    $end = strtotime('-1 hour', strtotime($area['end_time']));
+                    $revtime = strtotime($time);
+                    if ($revtime < $start || $revtime > $end) {
+                        $can = false;
+                    }
+                }
+
+
+                //verificar se esta fora dos disabledDays
+                $existingDisabledDay = AreaDisabledDay::where('id_area', $id)
+                    ->where('day', $date)
+                    ->count();
+                if ($existingDisabledDay > 0) {
+                    $can = false;
+                }
+
+                //verificar se nao existe outra reserva no mesmo dia/hora
+                $existingReservations = Reservation::where('id_area', $id)
+                    ->where('reservation_date', $date . ' ' . $time)
+                    ->count();
+                if ($existingReservations > 0) {
+                    $can = false;
+                }
+
+
+                if ($can) {
+                    $newReservation = new Reservation();
+                    $newReservation->id_unit = $property;
+                    $newReservation->id_area = $id;
+                    $newReservation->reservation_date = $date . ' ' . $time;
+                    $newReservation->save();
+                } else {
+                    $array['error'] = 'Reserva não permitida neste dia/horario';
+                    return $array;
+                }
+            } else {
+                $arra['error'] = 'Dados incorretos';
+                return $array;
+            }
+        } else {
+            $array['error'] = $validator->errors()->first();
+            return $array;
+        }
+
+        return $array;
+    }
+
+    public function getMyReservations(Request $request)
+    {
+        $array = ['error' => '', 'list' => []];
+
+        $property = $request->input('property');
+        if ($property) {
+            $unit = Unit::find($property);
+            if ($unit) {
+
+                $reservations = Reservation::where('id_unit', $property)
+                    ->orderBy('reservation_date', 'DESC')
+                    ->get();
+
+                foreach ($reservations as $reservation) {
+                    $area = Area::find($reservation['id_area']);
+
+                    $daterev = date('d/m/Y H:i', strtotime($reservation['reservation_date']));
+                    $aftertime = date('H:i', strtotime('+1 hour', strtotime($reservation['reservation_date'])));
+                    $daterev .= ' à ' . $aftertime;
+
+                    $array['list'][] = [
+                        'id' => $reservation['id'],
+                        'id_area' => $reservation['id_area'],
+                        'title' => $area['title'],
+                        'cover' => asset('storage/' . $area['cover']),
+                        'datereserved' => $daterev
+                    ];
+                }
+            } else {
+                $array['error'] = 'Propriedade inexistente';
+                return $array;
+            }
+        } else {
+            $array['error'] = 'Propriedade necessaria';
+            return $array;
+        }
+
+        return $array;
+    }
+
+
+    public function delMyReservation($id)
+    {
+        $array = ['error' => ''];
+
+        $user = auth()->user();
+        $reservation = Reservation::find($id);
+        if ($reservation) {
+
+            $unit = Unit::where('id', $reservation['id_unit'])
+                ->where('id_owner', $user['id'])
+                ->count();
+
+            if ($unit > 0) {
+                Reservation::find($id)->delete();
+            } else {
+                $array['error'] = 'Esta reserva não é sua';
+                return $array;
+            }
+        } else {
+            $array['error'] = 'Reserva inexistente';
+            return $array;
+        }
+
 
         return $array;
     }
