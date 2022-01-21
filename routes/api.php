@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+//use relacionado todos os controllers feitos
 use App\Http\Controllers\{
     AuthController,
     BilletController,
@@ -19,38 +19,49 @@ Route::get('/ping', function () {
     return ['pong' => true];
 });
 
+
+//quando não tiver o token,ou não tem acesso é enviado para a pagina login
 Route::get('/401', [AuthController::class, 'unauthorized'])->name('login');
+
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
+
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('auth/validate', [AuthController::class, 'validateToken']);
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
+
+
     //mural de avisos (walls)
     Route::get('/walls', [WallController::class, 'getAll']);
     Route::post('/wall/{id}/like', [WallController::class, 'like']);
 
+
     //documents
     Route::get('/docs', [DocController::class, 'getAll']);
+
 
     //livro de ocorrencia
     Route::get('/warnings', [WarningController::class, 'getMyWarnings']);
     Route::post('/warning', [WarningController::class, 'setWarning']);
     Route::post('/warning/file', [WarningController::class, 'addWarningFile']);
 
-    //boletos
 
+    //boletos
     Route::get('/billets', [BilletController::class, 'getAll']);
+
 
     // achados e perdidos
     Route::get('/foundandlost', [FoundAndLostController::class, 'getAll']);
     Route::post('/foundandlost', [FoundAndLostController::class, 'insert']);
     Route::put('/foundandlost/{id}', [FoundAndLostController::class, 'update']);
 
-    //Unidade
 
+
+    //Unidade
     Route::get('/unit/{id}', [UnitController::class, 'getInfo']);
     Route::post('/unit/{id}/addperson', [UnitController::class, 'addPerson']);
     Route::post('/unit/{id}/addvehicle', [UnitController::class, 'addVehicle']);
@@ -58,6 +69,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/unit/{id}/removeperson', [UnitController::class, 'removePerson']);
     Route::post('/unit/{id}/removevehicle', [UnitController::class, 'removeVehicle']);
     Route::post('/unit/{id}/removepet', [UnitController::class, 'removePet']);
+
 
     //reservas
     Route::get('/reservations', [ReservationController::class, 'getReservations']);

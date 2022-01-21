@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UnitController extends Controller
 {
-    public function getInfo($id)
+    public function getInfo($id) //pegando informações de uma unidade específica
     {
         $array = ['error' => ''];
 

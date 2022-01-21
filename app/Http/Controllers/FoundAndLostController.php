@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class FoundAndLostController extends Controller
 {
-    public function getAll()
+    public function getAll() //usando 2 listas achados e perdidos
     {
         $array = ['error' => ''];
 
@@ -39,7 +39,7 @@ class FoundAndLostController extends Controller
         return $array;
     }
 
-    public function insert(Request $request)
+    public function insert(Request $request) //inserindo item no achados e perdidos
     {
         $array = ['error' => ''];
 
@@ -73,7 +73,7 @@ class FoundAndLostController extends Controller
     }
 
 
-    public function update($id, Request $request)
+    public function update($id, Request $request) //atualizando status
     {
         $array = ['error' => ''];
 

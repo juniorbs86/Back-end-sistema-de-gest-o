@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class WarningController extends Controller
 {
-    public function getMywarnings(Request $request)
+    public function getMywarnings(Request $request) //pegando warnings da unidade específica
     {
         $array = ['error' => ''];
 
@@ -53,7 +53,7 @@ class WarningController extends Controller
         return $array;
     }
 
-    public function addWarningFile(Request $request)
+    public function addWarningFile(Request $request) // adicionando arquivos fotos
     {
         $array = ['error' => ''];
 
@@ -74,7 +74,7 @@ class WarningController extends Controller
         return $array;
     }
 
-    public function setWarning(Request $request)
+    public function setWarning(Request $request) // adicionando a ocorrência
     {
         $array = ['error' => ''];
 

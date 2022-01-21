@@ -10,17 +10,17 @@ class WallController extends Controller
 {
     public function getAll()
     {
-        $array = ['error' => '', 'list' => []];
+        $array = ['error' => '', 'list' => []]; //se não tiver itens, retorna uma lista vazia
 
-        $user = auth()->user();
+        $user = auth()->user(); //pegando o usuario logado
 
-        $walls = Wall::all();
+        $walls = Wall::all(); // pegando todos os avisos do mural
 
         foreach ($walls as $wallKey => $wallValue) {
-            $walls[$wallKey]['likes'] = 0;
-            $walls[$wallKey]['liked'] = false;
+            $walls[$wallKey]['likes'] = 0; //criando campo likes
+            $walls[$wallKey]['liked'] = false; //criando campo liked
 
-            $likes = WallLike::where('id_wall', $wallValue['id'])->count();
+            $likes = WallLike::where('id_wall', $wallValue['id'])->count(); //quantos likes tenho em determinada postagem
             $walls[$wallKey]['likes'] = $likes;
 
             $meLikes = WallLike::where('id_wall', $wallValue['id'])

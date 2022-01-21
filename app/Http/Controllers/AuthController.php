@@ -18,19 +18,19 @@ class AuthController extends Controller
         ], 401);
     }
 
-    public function register(Request $request)
+    public function register(Request $request) //receber os dados a serem enviados
     {
-        $array = ['error' => ''];
+        $array = ['error' => '']; //receber os dados para poder ser validado
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,email', //tabela users, campo email
             'cpf' => 'required|digits:11|unique:users,cpf',
             'password' => 'required',
             'password_confirm' => 'required|same:password'
         ]);
-
-        if (!$validator->fails()) {
+        //verificar se teve algum erro ou falha
+        if (!$validator->fails()) { // se deu certo entra nos campos name,email,cpf...
             $name = $request->input('name');
             $email = $request->input('email');
             $cpf = $request->input('cpf');
@@ -38,6 +38,7 @@ class AuthController extends Controller
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
+            //criando o usuario...
             $newUser = new User();
             $newUser->name = $name;
             $newUser->email = $email;
@@ -45,26 +46,26 @@ class AuthController extends Controller
             $newUser->password = $hash;
             $newUser->save();
 
-            $token = auth()->attempt([
+            $token = auth()->attempt([ //gerando o token
                 'cpf' => $cpf,
                 'password' => $password
             ]);
 
-            if (!$token) {
+            if (!$token) { //se nao gerou o token...
                 $array['error'] = 'Ocorreu um erro.';
                 return $array;
             }
 
-            $array['token'] = $token;
+            $array['token'] = $token; //token no array de resposta
 
-            $user = auth()->user();
+            $user = auth()->user(); //pegando os dados do usuario
             $array['user'] = $user;
 
-            $properties = Unit::select(['id', 'name'])
+            $properties = Unit::select(['id', 'name']) //pegando as propriedades desse usuario
                 ->where('id_owner', $user['id'])
                 ->get();
 
-            $array['user']['properties'] = $properties;
+            $array['user']['properties'] = $properties; //adicionando as propriedades
         } else {
             $array['error'] = $validator->errors()->first();
             return $array;
@@ -77,15 +78,15 @@ class AuthController extends Controller
     {
         $array = ['error' => ''];
 
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [ //validando cpf e senha
             'cpf' => 'required|digits:11',
             'password' => 'required'
         ]);
-        if (!$validator->fails()) {
+        if (!$validator->fails()) { //se não houve erros, continua o processo de login
             $cpf = $request->input('cpf');
             $password = $request->input('password');
 
-            $token = auth()->attempt([
+            $token = auth()->attempt([ //gerando o token
                 'cpf' => $cpf,
                 'password' => $password
             ]);
@@ -95,16 +96,16 @@ class AuthController extends Controller
                 return $array;
             }
 
-            $array['token'] = $token;
+            $array['token'] = $token; //token no array de resposta
 
-            $user = auth()->user();
+            $user = auth()->user(); //pegando os dados do usuario
             $array['user'] = $user;
 
-            $properties = Unit::select(['id', 'name'])
+            $properties = Unit::select(['id', 'name']) //pegando as propriedades desse usuario
                 ->where('id_owner', $user['id'])
                 ->get();
 
-            $array['user']['properties'] = $properties;
+            $array['user']['properties'] = $properties; //adicionando as propriedades
         } else {
             $array['error'] = $validator->errors()->first();
             return $array;
@@ -117,14 +118,14 @@ class AuthController extends Controller
     public function validateToken()
     {
         $array = ['error' => ''];
-        $user = auth()->user();
+        $user = auth()->user(); //pegando os dados do usuario
         $array['user'] = $user;
 
-        $properties = Unit::select(['id', 'name'])
+        $properties = Unit::select(['id', 'name']) //pegando as propriedades desse usuario
             ->where('id_owner', $user['id'])
             ->get();
 
-        $array['user']['properties'] = $properties;
+        $array['user']['properties'] = $properties; //adicionando as propriedades
 
         return $array;
     }

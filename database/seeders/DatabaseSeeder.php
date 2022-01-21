@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run() //Adicionando usuarios fictícios
     {
         DB::table('units')->insert([
             'name' => 'APT 100',

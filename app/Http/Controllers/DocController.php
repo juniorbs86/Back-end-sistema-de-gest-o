@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Doc;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DocController extends Controller
 {
